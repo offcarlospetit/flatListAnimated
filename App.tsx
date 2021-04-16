@@ -20,9 +20,10 @@ import {
   Text,
   useColorScheme,
   View,
+  ViewStyle,
 } from 'react-native';
 import { AppearanceProvider } from 'react-native-appearance';
-import { ThemeProvider } from './Theme/ThemeProvider';
+import { ThemeProvider, useTheme } from './Theme/ThemeProvider';
 
 const data = [
   { "id": 1, "first_name": "Elyssa", "last_name": "Cabrera", "email": "ecabrera0@xinhuanet.com", "gender": "Non-binary", "ip_address": "71.243.72.159", "image": "http://dummyimage.com/203x100.png/cc0000/ffffff" },
@@ -51,44 +52,46 @@ const spacing = 20
 const avatarSize = 70
 const itemSize = avatarSize + spacing * 3
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-];
-
 const App = () => {
   const scrollY = React.useRef(new Animated.Value(0)).current
+  const { colors } = useTheme()
+
+  let itemStyle = StyleSheet.create({
+    item: {
+      flexDirection: 'row',
+      padding: spacing,
+      marginBottom: spacing,
+      backgroundColor: colors.background,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 10
+      },
+      shadowOpacity: .2,
+      shadowRadius: 20,
+      borderRadius: 12
+    }
+  })
+
   return (
     <AppearanceProvider>
       <ThemeProvider>
-        {/* <SafeAreaView style={{ flex: 1 }}> */}
-        <Image source={{ uri: "https://www.itl.cat/pngfile/big/2-28409_cellphone-background-wallpaper-art-wallpaper-hd-portrait.jpg" }} blurRadius={80} style={StyleSheet.absoluteFillObject} />
         <View style={{ flex: 1, width: '100%', height: '100%', justifyContent: 'center' }}>
           <Animated.FlatList
             data={data}
-            contentContainerStyle={{ padding: spacing, paddingTop: StatusBar.currentHeight || 42 }}
+            contentContainerStyle={styles.contentContainerStyle}
             renderItem={({ item, index, separators }) => {
               const inputRange = [-1, 0, (itemSize * index), (itemSize * (index + 2))]
               const opacityInputRange = [-1, 0, (itemSize * index), (itemSize * (index + 1))]
               const scale = scrollY.interpolate({ inputRange, outputRange: [1, 1, 1, 0] })
               const opacity = scrollY.interpolate({ inputRange: opacityInputRange, outputRange: [1, 1, 1, 0] })
               return (
-                <Animated.View style={[styles.item, { transform: [{ scale }], opacity }]} >
-                  <Image style={{ width: avatarSize, height: avatarSize, borderRadius: avatarSize, marginRight: spacing / 2 }} source={{ uri: "https://picsum.photos/id/870/200/300?grayscale&blur=2" }} />
+                <Animated.View style={[itemStyle.item, { transform: [{ scale }], opacity }]} >
+                  <Image style={styles.avatarStyle} source={{ uri: item.image ? item.image : "https://picsum.photos/id/870/200/300?grayscale&blur=2" }} />
                   <View>
-                    <Text style={{ fontSize: 22, fontWeight: '700' }}>{item.first_name}</Text>
-                    <Text style={{ fontSize: 18, opacity: 0.7 }}>{item.email}</Text>
-                    <Text style={{ fontSize: 12, opacity: 0.8 }}>{item.ip_address}</Text>
+                    <Text style={styles.titleStyle}>{item.first_name}</Text>
+                    <Text style={styles.subtitleStyle}>{item.email}</Text>
+                    <Text style={styles.extraStyle}>{item.ip_address}</Text>
                   </View>
                 </Animated.View >
               )
@@ -101,33 +104,34 @@ const App = () => {
             }
           />
         </View>
-        {/* </SafeAreaView> */}
       </ThemeProvider>
     </AppearanceProvider>
   );
 };
 
 const styles = StyleSheet.create({
-  item: {
-    flexDirection: 'row',
+  contentContainerStyle: {
     padding: spacing,
-    marginBottom: spacing,
-    backgroundColor: 'rgba(255,255,255, 0.8)',
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 10
-    },
-    shadowOpacity: .2,
-    shadowRadius: 20,
-    borderRadius: 12
-    // padding: 20,
-    // marginVertical: 8,
-    // marginHorizontal: 16,
+    paddingTop: StatusBar.currentHeight || 42
   },
-  // title: {
-  //   fontSize: 32,
-  // },
+  avatarStyle: {
+    width: avatarSize,
+    height: avatarSize,
+    borderRadius: avatarSize,
+    marginRight: spacing / 2
+  },
+  titleStyle: {
+    fontSize: 22,
+    fontWeight: '700'
+  },
+  subtitleStyle: {
+    fontSize: 18,
+    opacity: 0.7
+  },
+  extraStyle: {
+    fontSize: 12,
+    opacity: 0.8
+  }
 });
 
 export default App;
